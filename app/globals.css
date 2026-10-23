@@ -1,0 +1,656 @@
+/* ------------------------------------------------------------------
+   The registrar's office.
+
+   Same tokens as the public museum — Archivo Black, Bodoni Moda,
+   Space Mono; hard 1px rules; offset shadows; no border radius
+   anywhere — but denser, because this is a room for reading numbers
+   rather than looking at art. The public site breathes; this one
+   doesn't need to.
+   ------------------------------------------------------------------ */
+
+:root {
+  /* Loaded with a <link> in the layout rather than next/font. next/font
+     fetches the files at build time, which makes `next build` need
+     network access to Google — fine on Vercel, a hard failure anywhere
+     that can't reach it. The fallback stack matters more than the
+     loader here. */
+  --font-display: "Archivo Black", system-ui, sans-serif;
+  --font-serif: "Bodoni Moda", Georgia, serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --ink: #121212;
+  --paper: #f3f1eb;
+  --muted-ink: #676761;
+  --signal: #e62b24;
+  --rule: #121212;
+  --tone-a: #e7e0d4;
+  --tone-b: #d8dad4;
+  --shadow: 6px 7px 0 var(--ink);
+  --shadow-sm: 3px 4px 0 var(--ink);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.1rem);
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+}
+
+/* ---------- shell -------------------------------------------- */
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px 96px;
+}
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 0 14px;
+  border-bottom: 3px solid var(--rule);
+}
+
+.masthead .wordmark {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.15rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.masthead .wordmark span {
+  color: var(--signal);
+}
+
+.masthead .who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-ink);
+}
+
+.masthead .who form {
+  margin: 0;
+}
+
+.linkish {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  color: var(--signal);
+}
+
+.admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0 0 40px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.admin-nav a {
+  padding: 11px 18px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  border: 1px solid var(--rule);
+  border-bottom: 0;
+  margin-right: -1px;
+  background: transparent;
+  color: var(--muted-ink);
+}
+
+.admin-nav a:hover {
+  background: var(--tone-a);
+  color: var(--ink);
+}
+
+.admin-nav a[aria-current="page"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ---------- page furniture ----------------------------------- */
+
+.page-head {
+  margin: 0 0 44px;
+  max-width: 62ch;
+}
+
+.eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  color: var(--signal);
+  margin-bottom: 10px !important;
+}
+
+.lede {
+  margin-top: 16px !important;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--muted-ink);
+}
+
+.panel {
+  margin-bottom: 52px;
+}
+
+.panel > h2 {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 14px;
+}
+
+.panel-note {
+  max-width: 64ch;
+  margin-bottom: 18px !important;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 0.95rem;
+  color: var(--muted-ink);
+}
+
+.panel-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 44px;
+}
+
+.muted {
+  color: var(--muted-ink);
+}
+
+.mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+/* ---------- the ledger --------------------------------------- */
+
+.figures {
+  display: grid;
+  /* minmax(0, …) and not 1fr: a long figure must not steal its
+     neighbour's column. Learned the hard way on the public header. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 168px), 1fr));
+  gap: 0;
+  border: 1px solid var(--rule);
+}
+
+.figure {
+  min-width: 0;
+  padding: 18px 16px 16px;
+  border-right: 1px solid var(--rule);
+  background: var(--tone-a);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.figure:last-child {
+  border-right: 0;
+}
+
+.figure strong {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 2.1rem;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.figure span {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.figure small {
+  font-size: 0.68rem;
+  color: var(--muted-ink);
+}
+
+/* ---------- tables ------------------------------------------- */
+
+.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  table-layout: auto;
+}
+
+.data th,
+.data td {
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid #c9c7c0;
+  vertical-align: top;
+}
+
+.data th {
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.data tbody tr:hover {
+  background: var(--tone-a);
+}
+
+.data .col-wide {
+  width: 34%;
+  min-width: 90px;
+}
+
+.scroller {
+  overflow-x: auto;
+}
+
+/* ---------- bars --------------------------------------------- */
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 4px;
+}
+
+.bar {
+  display: block;
+  height: 6px;
+  border: 1px solid var(--ink);
+}
+
+.bar-ink {
+  background: var(--ink);
+}
+
+.bar-mid {
+  background: var(--tone-b);
+}
+
+.bar-signal {
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+/* ---------- tally lists -------------------------------------- */
+
+.tally {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.tally li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 0;
+  border-bottom: 1px solid #c9c7c0;
+  font-size: 0.8rem;
+}
+
+.tally strong {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+}
+
+.chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--rule);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--tone-b);
+}
+
+.chip-acquired {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--paper);
+}
+
+.chip-no_votes,
+.chip-rejected {
+  background: var(--tone-a);
+}
+
+/* ---------- divisive ----------------------------------------- */
+
+.divisive {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 18px;
+}
+
+.divisive li {
+  min-width: 0;
+  border: 1px solid var(--rule);
+  background: var(--tone-b);
+  box-shadow: var(--shadow-sm);
+  padding: 14px;
+}
+
+.divisive-meta {
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-ink);
+}
+
+.divisive blockquote {
+  margin: 10px 0;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  /* Haiku and verse arrive with real newlines in them. Without this
+     every poem in the museum collapses onto one line. */
+  white-space: pre-line;
+}
+
+.divisive-tally {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--signal);
+}
+
+/* ---------- forms and buttons -------------------------------- */
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn:hover {
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn-ghost:hover {
+  background: var(--tone-a);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.btn-danger {
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.btn-danger:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #c9c7c0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.field > label {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted-ink);
+}
+
+.field input,
+.field select,
+.field textarea {
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 9px 10px;
+  border: 1px solid var(--ink);
+  background: #fbfaf6;
+  color: var(--ink);
+  border-radius: 0;
+  max-width: 100%;
+}
+
+.field textarea {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  min-height: 140px;
+  resize: vertical;
+}
+
+.field-hint {
+  font-size: 0.66rem;
+  color: var(--muted-ink);
+}
+
+.editor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 40px;
+  align-items: start;
+}
+
+.record {
+  border: 1px solid var(--rule);
+  background: var(--tone-a);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.record dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 8rem) minmax(0, 1fr);
+  gap: 6px 14px;
+  font-size: 0.74rem;
+}
+
+.record dt {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-ink);
+}
+
+.record dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid #c9c7c0;
+}
+
+.notice {
+  border: 1px solid var(--signal);
+  background: #fbe9e8;
+  padding: 12px 14px;
+  font-size: 0.78rem;
+  margin-bottom: 24px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---------- the gate (login / denied) ------------------------ */
+
+.gate {
+  width: min(460px, calc(100% - 48px));
+  margin: clamp(48px, 16vh, 140px) auto;
+  border: 1px solid var(--rule);
+  background: var(--tone-a);
+  box-shadow: var(--shadow);
+  padding: 36px 32px;
+}
+
+.gate h1 {
+  font-size: clamp(1.7rem, 7vw, 2.3rem);
+}
+
+.gate-copy {
+  margin-top: 16px !important;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--muted-ink);
+}
+
+.gate-note {
+  margin-top: 20px !important;
+  padding-top: 18px;
+  border-top: 1px solid #c9c7c0;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  color: var(--muted-ink);
+}
+
+.gate-note code {
+  font-size: 0.72rem;
+  background: var(--tone-b);
+  padding: 1px 4px;
+  border: 1px solid #c9c7c0;
+}
+
+.gate form {
+  margin: 0;
+}
+
+.gate .btn,
+.gate .btn-primary {
+  margin-top: 26px;
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 12px 22px;
+  border: 1px solid var(--signal);
+  background: var(--signal);
+  color: var(--paper);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.alert {
+  margin-top: 20px !important;
+  border: 1px solid var(--signal);
+  background: #fbe9e8;
+  padding: 11px 13px;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
