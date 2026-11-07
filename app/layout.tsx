@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MoDA — Registrar's Office",
+  title: "MoDA — Admin's Office",
   description: "Administration for the Museum of Digital Art.",
   // Nothing here should ever be indexed. The login wall is the real
   // protection; this is just not inviting anyone to look.

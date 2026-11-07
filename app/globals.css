@@ -654,3 +654,255 @@ button {
   font-size: 0.76rem;
   line-height: 1.5;
 }
+
+/* ------------------------------------------------------------------
+   The registry, the pipeline and the image store.
+   Appended for 010. Same tokens, same hard rules, no new colours.
+   ------------------------------------------------------------------ */
+
+/* ---- entry cards (the registry index) ----------------------- */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 18px;
+}
+
+.cards .card {
+  min-width: 0;
+  display: block;
+  padding: 18px;
+  border: 1px solid var(--rule);
+  background: var(--tone-a);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+}
+
+.cards .card:hover {
+  background: var(--tone-b);
+  box-shadow: var(--shadow);
+}
+
+.cards .card h2 {
+  margin: 8px 0 10px;
+  border: 0;
+  padding: 0;
+}
+
+.card-perms {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+.card-blurb {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--muted-ink);
+}
+
+/* ---- forms -------------------------------------------------- */
+
+.form-stack {
+  max-width: 640px;
+  gap: 18px;
+}
+
+.field-tight input,
+.field-tight select { max-width: 9rem; }
+
+.req { color: var(--signal); }
+
+.readonly-value {
+  padding: 9px 10px;
+  border: 1px dashed #b9b7b0;
+  background: transparent;
+  font-size: 0.82rem;
+  color: var(--muted-ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.checkline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+}
+
+.checkline input { accent-color: var(--signal); width: 16px; height: 16px; }
+
+.notice-quiet {
+  border-color: #b9b7b0;
+  background: var(--tone-a);
+}
+
+/* ---- the pipeline ------------------------------------------- */
+
+.chain {
+  border: 1px solid var(--rule);
+  background: var(--tone-a);
+  padding: 16px;
+  /* Dormant by default; a live chain gets the offset shadow, so the
+     ones actually serving traffic are the ones that lift off the page. */
+  box-shadow: none;
+  opacity: 0.72;
+}
+
+.chain-live {
+  box-shadow: var(--shadow-sm);
+  opacity: 1;
+  background: #fbfaf6;
+}
+
+.chain-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #c9c7c0;
+}
+
+.chain-head h3 {
+  margin-top: 4px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+.chain-share {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+}
+
+.chain-share strong {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.chain-share span {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.chain-notes {
+  margin-top: 12px !important;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 0.92rem;
+  color: var(--muted-ink);
+}
+
+.chain-dormant {
+  margin-top: 12px !important;
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  color: var(--signal);
+}
+
+.steps {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.steps .step-off { opacity: 0.5; }
+
+.step-head {
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+  margin-bottom: 4px !important;
+}
+
+.step-template {
+  margin: 0;
+  padding: 9px 11px;
+  border-left: 3px solid var(--ink);
+  background: var(--tone-b);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  /* Templates carry real newlines and {{placeholders}}; both are
+     load-bearing, so this wraps rather than scrolls and never reflows. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.mix-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #c9c7c0;
+}
+
+.chip-failed  { background: var(--signal); border-color: var(--signal); color: var(--paper); }
+.chip-pending { background: #f0e6c8; }
+
+/* ---- the image store ---------------------------------------- */
+
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+}
+
+.upload-wide { grid-column: 1 / -1; }
+
+.upload-grid input[type="file"] {
+  padding: 7px;
+  font-size: 0.74rem;
+  background: var(--tone-b);
+}
+
+.gallery {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+  gap: 18px;
+}
+
+.gallery a { text-decoration: none; display: block; min-width: 0; }
+
+.thumb {
+  display: block;
+  border: 1px solid var(--rule);
+  background:
+    repeating-conic-gradient(#e9e7e0 0% 25%, #f7f5ef 0% 50%) 50% / 16px 16px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.thumb-large { aspect-ratio: auto; }
+.thumb-large img { height: auto; max-height: 420px; }
+
+.gallery .divisive-meta { margin-top: 8px !important; }
+
+.thumb-path {
+  font-size: 0.62rem;
+  color: var(--muted-ink);
+  overflow-wrap: anywhere;
+}

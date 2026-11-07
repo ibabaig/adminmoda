@@ -6,8 +6,12 @@ import { usePathname } from "next/navigation";
 const ROOMS = [
   { href: "/", label: "Condition report" },
   { href: "/media", label: "Media" },
+  { href: "/images", label: "Images" },
   { href: "/people", label: "Profiles" },
   { href: "/votes", label: "Ballots" },
+  { href: "/pipeline", label: "Pipeline" },
+  { href: "/requests", label: "Requests" },
+  { href: "/registry", label: "Registry" },
 ];
 
 // Client only for usePathname() — the aria-current needs to know which

@@ -202,3 +202,109 @@ generated.
 
 Deleting a work cascades to its votes. There is no undo, and the button
 says so.
+
+---
+
+# Migration 010 — the prompt pipeline
+
+Run `supabase/010_prompt_pipeline.sql` **after** 008 and 009. It adds
+twelve tables and wires the main app's generation path to them.
+
+Until this migration the museum's prompts lived in `lib/gemini.ts`, the
+model name lived in an environment variable, and nothing recorded what
+happened when a commission was attempted. All three now live in the
+database.
+
+## What each screen does, and what it is allowed to do
+
+| Screen | Table(s) | Operations |
+| --- | --- | --- |
+| `/people` | `profiles` | read |
+| `/pipeline` | `prompt_chains`, `prompt_chain_steps` | read |
+| `/pipeline` | `prompt_chain_mix` | read, **update** |
+| `/registry/terms` | `terms` | create, read, update, delete |
+| `/media` | `works` | create, read, update, delete |
+| `/requests` | `generation_requests`, `llm_responses` | read |
+| `/registry/examples` | `ai_generation_examples` | create, read, update, delete |
+| `/registry/llm-models` | `llm_models` | create, read, update, delete |
+| `/registry/llm-providers` | `llm_providers` | create, read, update, delete |
+| `/registry/signup-domains` | `allowed_signup_domains` | create, read, update, delete |
+| `/registry/whitelisted-emails` | `whitelisted_emails` | create, read, update, delete |
+| `/images` | `images` + Storage | create (upload), read, update, delete |
+
+Where that table says read only, **migration 010 creates no write policy
+at all**. The absence is the point: a stray write from this app is
+refused by Postgres rather than merely missing from the interface. The
+permission matrix was exercised against a scratch Postgres with 009 and
+010 applied — `prompt_chains` and `prompt_chain_steps` reject inserts,
+`generation_requests` and `llm_responses` reject deletes, an `UPDATE`
+reaching `prompt_chain_mix` can touch only `weight` and `is_active`
+(column-level grant), and an ordinary member can neither forge a house
+attempt nor read anyone else's.
+
+## Why the mix is read/update and not full CRUD
+
+A mix row is *derived*: it exists because a chain exists. A trigger
+(`sync_prompt_chain_mix`) creates one for every new chain and the
+foreign-key cascade removes it. There is nothing for a curator to create
+or delete by hand, and the only thing they ever need to change is the
+weight — so that is the only thing the grant permits.
+
+Weights are shown as a **share**, because a weight of 100 means nothing
+on its own: only 100 against everything else active in that department.
+`humour-text-terse-v1` ships at weight 0, which is how a prompt variant
+is meant to arrive — present, inert, and one number away from taking
+traffic without a deploy.
+
+## The signup gate fails open
+
+`public.signup_allowed(addr)` returns **true** when both
+`allowed_signup_domains` and `whitelisted_emails` have no active rows. A
+gate defaulting to closed would have locked the curator out of
+registration the moment the migration ran, with the SQL editor as the
+only way back in.
+
+Seeded: `columbia.edu` and `gmail.com` as active domains, and the
+curator's own address in `whitelisted_emails`. To demonstrate domain
+gating, deactivate `gmail.com` on `/registry/signup-domains` — the
+individually whitelisted address still gets in, which is exactly the
+escape hatch that makes tightening the domains safe.
+
+Enforcement is a `before insert` trigger on `auth.users`, kept separate
+from `handle_new_user()` so a change to the gate cannot break profile
+creation.
+
+## Images store paths, not bytes
+
+Files go to the `museum-images` Storage bucket; the `images` table holds
+the bucket and path. Assignment 3 said it outright and it is still true.
+Upload and catalogue happen together, and if the catalogue insert fails
+the uploaded object is removed rather than left as an orphan nobody can
+find. Deleting removes the file first, then the row: a failure then
+leaves a row pointing at a file that still exists, which is the
+recoverable direction.
+
+## What the main app now records
+
+`lib/prompt-pipeline.ts` in **modagallery** resolves a chain by weighted
+draw, assembles the prompt from its steps, and interpolates
+`{{wing.name}}`, `{{school.direction}}`, `{{audience}}`, `{{house_rules}}`,
+`{{palette}}`, `{{canvas.w}}`, plus `{{examples}}` and `{{terms}}` which
+are database lookups of their own. An unknown placeholder is left in
+place rather than blanked, so a typo in a template shows up in the
+stored prompt instead of silently deleting an instruction.
+
+Every attempt writes a `generation_requests` row before the model is
+called and completes it afterwards, with an `llm_responses` row carrying
+`finish_reason`, token counts (including **thought** tokens), latency,
+and the SVG sanitiser's verdict. That makes `/requests` able to report
+success rate by department, p50 and p95 latency, the sanitiser rejection
+rate, and how often a generation dies at `MAX_TOKENS` — the failure that
+caused the poetry bug, since thinking and output share one budget.
+
+**The literals in `lib/gemini.ts` are kept as a fallback.** If no chain
+resolves — 010 not run, or every chain in a department switched off by
+mistake — generation uses them instead of failing. A configuration
+screen that can take the whole museum offline is a bad trade. All
+telemetry is best-effort for the same reason: it is never the cause of a
+failed commission.
