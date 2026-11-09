@@ -5,7 +5,7 @@
 -- Run in: Supabase -> SQL Editor -> New query -> paste -> Run
 --
 -- WHAT THIS IS FOR
---   Until now the museum's prompts lived in lib/gemini.ts, the model
+--   Until now the prompts lived in lib/gemini.ts, the model
 --   name lived in an environment variable, and nothing recorded what
 --   happened when a commission was attempted. This migration moves all
 --   three into the database:
@@ -14,7 +14,7 @@
 --     prompt_chains / _steps / _mix   how a prompt is assembled, and
 --                                     which variant a commission draws
 --     ai_generation_examples          few-shot material per school
---     terms                           the museum's house vocabulary
+--     terms                           the house vocabulary
 --     generation_requests             one row per attempt
 --     llm_responses                   what came back, with timings
 --     allowed_signup_domains          who may register
@@ -37,6 +37,9 @@
 --   because assignment 4 required storing them -- so this leaks
 --   nothing that was not already on display.
 -- ============================================================
+
+
+begin;
 
 
 -- ============================================================
@@ -65,7 +68,7 @@ create table public.llm_models (
                       check (kind in ('text','image','video')),
   -- Defaults a chain inherits unless it overrides them. maxOutputTokens
   -- caps thinking AND output together, which is why poetry needs a far
-  -- larger number than a one-line joke -- see 008's sibling bug.
+  -- larger number than a one-line joke -- see the sibling bug in 008.
   max_output_tokens integer not null default 2400 check (max_output_tokens > 0),
   default_temperature numeric(3,2) not null default 1.00
                       check (default_temperature >= 0 and default_temperature <= 2),
@@ -182,7 +185,7 @@ create table public.ai_generation_examples (
 create index ai_generation_examples_lookup_idx
   on public.ai_generation_examples (department, school, is_active);
 
--- The museum's controlled vocabulary. These are injected into prompts so
+-- The controlled house vocabulary. These are injected into prompts so
 -- the model writes "accessioned" and "wing" rather than inventing its own
 -- words for them, and they double as the glossary for wall text.
 create table public.terms (
@@ -283,7 +286,7 @@ create table public.whitelisted_emails (
 --
 -- If both tables are empty of active rows, everybody is allowed. This is
 -- the single most important line in the file: a gate that defaults to
--- closed would have locked the museum's own curator out of registration
+-- closed would have locked the curator out of registration
 -- the moment this migration ran, and the only way back in would be the
 -- SQL editor again.
 --
@@ -446,7 +449,7 @@ create policy "curators retune the mix"
   using (public.is_superadmin()) with check (public.is_superadmin());
 
 -- Column-level, so even an UPDATE that passes the policy can only touch
--- the two fields that are a curator's business. Reassigning a mix row to
+-- the two fields that are the business of a curator. Reassigning a row to
 -- another department is not retuning, it is corruption.
 revoke update on public.prompt_chain_mix from authenticated;
 grant  update (weight, is_active, updated_at) on public.prompt_chain_mix to authenticated;
@@ -482,8 +485,8 @@ end;
 $$;
 
 -- ---- the generation path writes its own record ----
--- A member may log their own attempt and nobody else's, and may not
--- claim the attempt was the museum's.
+-- A member may log their own attempt and no one elses, and may not
+-- claim the attempt came from the house.
 create policy "members log own requests"
   on public.generation_requests for insert to authenticated
   with check (requester_id = (select auth.uid()) and origin = 'member');
@@ -515,7 +518,7 @@ create policy "members read responses to own requests"
 create policy "anyone reads the image catalogue"
   on public.images for select to anon, authenticated using (true);
 
--- The house's nightly commission runs as service_role, which bypasses
+-- The nightly house commission runs as service_role, which bypasses
 -- RLS entirely. No policy below needs to make room for it.
 
 
@@ -524,7 +527,7 @@ create policy "anyone reads the image catalogue"
 --
 -- These mirror what lib/gemini.ts does today, so switching the app over
 -- to read from the database is a no-op in output rather than a rewrite
--- of the museum's voice.
+-- of the house voice.
 -- ============================================================
 
 insert into public.llm_providers (slug, name, api_base, env_key_name, notes) values
@@ -711,14 +714,17 @@ values
 
 -- ---- the gate, configured so it cannot lock the curator out ----
 -- The individual whitelist is the escape hatch: to demonstrate the gate
--- working, deactivate gmail.com in the admin area. The curator's own
--- address is listed separately and still gets in.
+-- working, deactivate gmail.com in the admin area. The address of the
+-- curator is listed separately and still gets in.
 insert into public.allowed_signup_domains (domain, note) values
   ('columbia.edu', 'The museum''s own university.'),
   ('gmail.com',    'Open by default so the gate does not surprise anyone. Deactivate this row to demonstrate domain gating.');
 
 insert into public.whitelisted_emails (email, note) values
   ('ibabaig712@gmail.com', 'Curator. Listed individually so the gate can be tightened without losing access.');
+
+
+commit;
 
 
 -- ============================================================
