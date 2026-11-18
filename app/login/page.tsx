@@ -9,7 +9,7 @@ export default async function LoginPage({
 
   return (
     <main className="gate">
-      <p className="eyebrow">MUSEUM OF DIGITAL ART</p>
+      <p className="eyebrow">MUSEUM OF DIGITAL ARCHIVES</p>
       <h1>Back of house</h1>
       <p className="gate-copy">
         Collection management, membership records and the ratings ledger.

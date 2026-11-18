@@ -1,6 +1,6 @@
 # MoDA — Registrar's Office
 
-The admin area for [MoDA, the Museum of Digital Art](https://github.com/ibabaig/modagallery).
+The admin area for [MoDA, the Museum of Digital Archives](https://github.com/ibabaig/modagallery).
 A second Next.js app, a second Vercel project, the **same** Supabase
 database.
 

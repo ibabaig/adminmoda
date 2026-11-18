@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "MoDA — Admin's Office",
-  description: "Administration for the Museum of Digital Art.",
+  description: "Administration for the Museum of Digital Archives.",
   // Nothing here should ever be indexed. The login wall is the real
   // protection; this is just not inviting anyone to look.
   robots: { index: false, follow: false },

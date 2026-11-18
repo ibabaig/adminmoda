@@ -582,7 +582,7 @@ select c.id, v.ord, v.role, v.label, v.template
   from public.prompt_chains c,
        (values
          (1, 'role', 'Commission',
-          'You are writing a short joke that hangs on a wall as the artwork itself, for the Museum of Digital Art.'),
+          'You are writing a short joke that hangs on a wall as the artwork itself, for the Museum of Digital Archives.'),
          (2, 'context', 'Gallery',
           E'GALLERY: {{wing.name}} ({{wing.era_label}})\nSUBJECT: {{wing.subject}}'),
          (3, 'audience', 'Audience', '{{audience}}'),
@@ -600,7 +600,7 @@ select c.id, v.ord, v.role, v.label, v.template
   from public.prompt_chains c,
        (values
          (1, 'role', 'Commission',
-          'You are writing a short poem for a broadside hung on a gallery wall, for the Museum of Digital Art.'),
+          'You are writing a short poem for a broadside hung on a gallery wall, for the Museum of Digital Archives.'),
          (2, 'context', 'Gallery',
           E'GALLERY: {{wing.name}} ({{wing.era_label}})\nSUBJECT: {{wing.subject}}'),
          (3, 'audience', 'Audience', '{{audience}}'),
@@ -618,7 +618,7 @@ select c.id, v.ord, v.role, v.label, v.template
   from public.prompt_chains c,
        (values
          (1, 'role', 'Commission',
-          E'You are composing a print for the Museum of Digital Art''s Prints department.\nYou work in SVG. The SVG is the artwork.'),
+          E'You are composing a print for the Museum of Digital Archives'' Prints department.\nYou work in SVG. The SVG is the artwork.'),
          (2, 'context', 'Gallery',
           E'GALLERY: {{wing.name}} ({{wing.era_label}})\nSUBJECT: {{wing.subject}}'),
          (3, 'audience', 'Audience', '{{audience}}'),
@@ -637,7 +637,7 @@ select c.id, v.ord, v.role, v.label, v.template
   from public.prompt_chains c,
        (values
          (1, 'role', 'Commission',
-          E'You are composing a single film still for the Museum of Digital Art''s Film department.\nYou work in SVG. The SVG is the artwork.'),
+          E'You are composing a single film still for the Museum of Digital Archives'' Film department.\nYou work in SVG. The SVG is the artwork.'),
          (2, 'context', 'Gallery',
           E'GALLERY: {{wing.name}} ({{wing.era_label}})\nSUBJECT: {{wing.subject}}'),
          (3, 'audience', 'Audience', '{{audience}}'),
@@ -656,7 +656,7 @@ select c.id, v.ord, v.role, v.label, v.template
   from public.prompt_chains c,
        (values
          (1, 'role', 'Commission',
-          'You are writing one line that hangs on a gallery wall as the artwork itself, for the Museum of Digital Art.'),
+          'You are writing one line that hangs on a gallery wall as the artwork itself, for the Museum of Digital Archives.'),
          (2, 'context', 'Gallery', 'GALLERY: {{wing.name}} — {{wing.subject}}'),
          (3, 'audience', 'Audience', '{{audience}}'),
          (4, 'school', 'School', E'SCHOOL: {{school.name}}\n{{school.direction}}'),
